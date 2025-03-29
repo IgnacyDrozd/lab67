@@ -28,10 +28,12 @@ main PROC
 	
 	mov ebx, OFFSET A
 	mov esi, OFFSET promptA
-	mov ecx, 5 ;counter
+	mov ecx, 5 ;A to E
 
+
+	;loop for all input prompts
 L1:
-	mov edx, esi; argument for WriteString
+	mov edx, esi; argument for WriteString in edx
 	add esi, 10 ;next prompt
 	call WriteString
 
