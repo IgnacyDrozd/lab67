@@ -21,6 +21,7 @@ INCLUDE Irvine32.inc
 	promptE BYTE "Enter E: ", 0
 	TEMP SDWORD ?
 	promptBad BYTE "Invalid input, please enter again",0
+	promptOV BYTE "Overflow! crash",0
 
 .code
 main PROC
@@ -45,14 +46,50 @@ read:
 
 goodInput:
     mov  [ebx],eax  ;store good value
-	add ebx, 4 ;next var
+	add ebx, 4		;next var
 	LOOP L1
 
 ;now we can calculate the formula
 
+	mov eax, A
+	mov ebx, B
+	sub eax,ebx
+	jo OVERFLOW ;exit with code 1 if there was an overflow in the operation
+	mov TEMP, eax
+
+	
+	mov edx, 0	;first multiplication
+	neg eax		;this technically negates the parentheses, not C (which is -C in the formula), but it is easier to negate the value already in the register
+	IMUL eax, Cv ;IMUL reg32/mem32, however overflow is possible in this case
+	jo OVERFLOW
+	
+
+	mov ebx, D
+	CDQ ;sign extend edx for IDIV
+	IDIV ebx
+
+	mov ebx, E ;final addition
+	neg ebx
+	add eax,ebx
+	jo OVERFLOW
+
+	call WriteInt ;output final value
+
+
+
+
+
+
+
 
 
 	invoke ExitProcess,0
+OVERFLOW:
+	
+	mov edx, OFFSET promptOV
+	call WriteString
+	invoke ExitProcess,1
+
 main ENDP
 
 
